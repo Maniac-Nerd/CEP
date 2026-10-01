@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f5f8ff">
+  <title>Support desk | EverLocker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-page">
+  <header class="admin-topbar">
+    <a class="admin-brand" href="index.html" aria-label="EverLocker home">
+      <span class="admin-brand-mark">E</span>
+      <span>EverLocker<span class="admin-brand-divider">/</span><span class="admin-brand-section">Support desk</span></span>
+    </a>
+    <div class="admin-top-actions">
+      <span class="admin-secure-label"><span></span> Author workspace</span>
+      <a class="admin-home-link" href="index.html">View website <span aria-hidden="true">↗</span></a>
+      <button class="admin-logout" id="logout" type="button" hidden>Log out</button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <section class="admin-auth-gate" id="authGate">
+      <div class="admin-auth-card">
+        <p class="admin-eyebrow"><span class="admin-eyebrow-mark">E</span> AUTHOR ACCESS</p>
+        <h1 id="authTitle">Sign in to continue</h1>
+        <p class="admin-auth-description" id="authDescription">Log in with your EverLocker admin account to open the support desk.</p>
+        <form id="authForm">
+          <label class="admin-auth-name" id="signupNameWrap" hidden>
+            Your name
+            <input id="signupName" type="text" autocomplete="name" placeholder="Author name">
+          </label>
+          <label>
+            Email address
+            <input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+          </label>
+          <label>
+            Password
+            <input id="authPassword" type="password" autocomplete="current-password" required placeholder="Enter your password">
+          </label>
+          <button class="admin-auth-submit" id="authSubmit" type="submit">Log in</button>
+          <p class="admin-auth-message" id="authMessage" role="status" aria-live="polite"></p>
+        </form>
+        <p class="admin-auth-switch" id="authSwitch">New to EverLocker? <button id="switchToSignup" type="button">Create an account</button></p>
+        <p class="admin-auth-note">Signing up creates a regular learner account only. Admin access must be granted separately by the project owner.</p>
+      </div>
+    </section>
+
+    <div id="adminDashboard" hidden>
+    <section class="admin-welcome">
+      <div>
+        <p class="admin-eyebrow"><span class="admin-eyebrow-mark">E</span> COMMUNITY SUPPORT</p>
+        <h1>Good to see you, <span id="adminName">Author</span><span class="admin-wave" aria-hidden="true">.</span></h1>
+        <p class="admin-intro">A little help goes a long way. Review questions from your learners and share a useful answer.</p>
+      </div>
+      <button class="admin-refresh" id="refresh" type="button"><span aria-hidden="true">↻</span> Refresh inbox</button>
+    </section>
+
+    <section class="admin-stats" aria-label="Query overview">
+      <article class="admin-stat-card">
+        <div class="admin-stat-top"><span class="admin-stat-icon admin-stat-icon-blue" aria-hidden="true">▤</span><span class="admin-stat-caption">ALL TIME</span></div>
+        <strong id="totalCount">—</strong><span class="admin-stat-label">Total questions</span>
+      </article>
+      <article class="admin-stat-card">
+        <div class="admin-stat-top"><span class="admin-stat-icon admin-stat-icon-amber" aria-hidden="true">◷</span><span class="admin-stat-caption">NEEDS ATTENTION</span></div>
+        <strong id="pendingCount">—</strong><span class="admin-stat-label">Waiting for a reply</span>
+      </article>
+      <article class="admin-stat-card">
+        <div class="admin-stat-top"><span class="admin-stat-icon admin-stat-icon-green" aria-hidden="true">✓</span><span class="admin-stat-caption">COMPLETED</span></div>
+        <strong id="resolvedCount">—</strong><span class="admin-stat-label">Questions answered</span>
+      </article>
+    </section>
+
+    <section class="admin-inbox">
+      <div class="admin-inbox-heading">
+        <div>
+          <div class="admin-title-row"><h2>Your inbox</h2><span class="admin-inbox-count" id="visibleCount">0</span></div>
+          <p>Questions submitted through the EverLocker help form.</p>
+        </div>
+        <label class="admin-search">
+          <span aria-hidden="true">⌕</span>
+          <input id="search" type="search" placeholder="Search questions..." autocomplete="off">
+          <kbd>/</kbd>
+        </label>
+      </div>
+
+      <div class="admin-toolbar">
+        <div class="admin-filters" role="group" aria-label="Filter questions">
+          <button class="admin-filter active" type="button" data-filter="all" aria-pressed="true">All questions</button>
+          <button class="admin-filter" type="button" data-filter="pending" aria-pressed="false">Needs reply <span id="pendingFilterCount">0</span></button>
+          <button class="admin-filter" type="button" data-filter="resolved" aria-pressed="false">Replied</button>
+        </div>
+        <span class="admin-sort-label"><span aria-hidden="true">↓</span> Newest first</span>
+      </div>
+
+      <div id="status" class="admin-notice" role="status" aria-live="polite">
+        <span class="admin-spinner" aria-hidden="true"></span> Connecting to your inbox...
+      </div>
+      <div id="queries" class="admin-query-list"></div>
+      <div id="emptyState" class="admin-empty" hidden>
+        <span class="admin-empty-icon" aria-hidden="true">✦</span>
+        <h3 id="emptyTitle">Nothing here yet</h3>
+        <p id="emptyMessage">New learner questions will appear here.</p>
+      </div>
+    </section>
+
+    <footer class="admin-footer">
+      <span><span class="admin-footer-mark">E</span> EverLocker <span class="admin-footer-dot">·</span> Learn. Share. Help.</span>
+      <span>For learning support only. Never request or share OTPs or sensitive ID details.</span>
+    </footer>
+    </div>
+  </main>
+
+  <script>
+    const API = (localStorage.getItem("everlocker_api") || "http://localhost:5000/api").replace(/\/$/, "");
+    let token = localStorage.getItem("everlocker_token");
+    let authMode = "login";
+    const authGate = document.getElementById("authGate");
+    const adminDashboard = document.getElementById("adminDashboard");
+    const logoutButton = document.getElementById("logout");
+    const authMessage = document.getElementById("authMessage");
+    const statusElement = document.getElementById("status");
+    const queryList = document.getElementById("queries");
+    const emptyState = document.getElementById("emptyState");
+    const searchInput = document.getElementById("search");
+    let queries = [];
+    let activeFilter = "all";
+
+    function showAuth(message = "") {
+      authGate.hidden = false;
+      adminDashboard.hidden = true;
+      logoutButton.hidden = true;
+      authMessage.textContent = message;
+    }
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      const isSignup = mode === "signup";
+      document.getElementById("authTitle").textContent = isSignup ? "Create your account" : "Sign in to continue";
+      document.getElementById("authDescription").textContent = isSignup
+        ? "Create a learner account. Admin access is granted separately by the project owner."
+        : "Log in with your EverLocker admin account to open the support desk.";
+      document.getElementById("signupNameWrap").hidden = !isSignup;
+      document.getElementById("signupName").required = isSignup;
+      document.getElementById("authPassword").autocomplete = isSignup ? "new-password" : "current-password";
+      document.getElementById("authSubmit").textContent = isSignup ? "Create account" : "Log in";
+      document.getElementById("authSwitch").innerHTML = isSignup
+        ? 'Already have an account? <button id="switchToLogin" type="button">Log in</button>'
+        : 'New to EverLocker? <button id="switchToSignup" type="button">Create an account</button>';
+      document.getElementById(isSignup ? "switchToLogin" : "switchToSignup")
+        .addEventListener("click", () => {
+          setAuthMode(isSignup ? "login" : "signup");
+          authMessage.textContent = "";
+        });
+      authMessage.textContent = "";
+    }
+
+    function showDashboard() {
+      authGate.hidden = true;
+      adminDashboard.hidden = false;
+      logoutButton.hidden = false;
+    }
+
+    function showMessage(message, isError = false) {
+      statusElement.hidden = !message;
+      statusElement.classList.toggle("admin-notice-error", isError);
+      statusElement.textContent = message;
+    }
+
+    function formatDate(value) {
+      if (!value) return "Date unavailable";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return "Date unavailable";
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: "medium",
+        timeStyle: "short"
+      }).format(date);
+    }
+
+    function makeElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function updateSummary() {
+      const pending = queries.filter(query => query.Status?.toLowerCase() !== "resolved").length;
+      document.getElementById("totalCount").textContent = queries.length;
+      document.getElementById("pendingCount").textContent = pending;
+      document.getElementById("resolvedCount").textContent = queries.length - pending;
+      document.getElementById("pendingFilterCount").textContent = pending;
+      document.getElementById("adminName").textContent =
+        JSON.parse(localStorage.getItem("everlocker_user") || "{}").name || "Author";
+    }
+
+    function makeQueryCard(query) {
+      const card = makeElement("article", "admin-query-card");
+      const heading = makeElement("div", "admin-query-heading");
+      const titleGroup = makeElement("div", "admin-query-title-group");
+      const category = makeElement("span", "admin-category", query.Category || "Other");
+      const queryNumber = makeElement("span", "admin-query-id", `QUESTION ${String(query.QueryID || "").slice(-6).toUpperCase()}`);
+      const isResolved = query.Status?.toLowerCase() === "resolved";
+      const badge = makeElement("span", `admin-status-badge ${isResolved ? "is-resolved" : "is-pending"}`,
+        isResolved ? "Replied" : "Needs reply");
+      const date = makeElement("time", "admin-query-date", formatDate(query.CreatedAt));
+
+      titleGroup.append(category, queryNumber);
+      heading.append(titleGroup, badge);
+
+      const question = makeElement("p", "admin-question", query.Question || "");
+      const person = makeElement("div", "admin-person");
+      const initial = (query.Name || "?").trim().charAt(0).toUpperCase() || "?";
+      const avatar = makeElement("span", "admin-avatar", initial);
+      const identity = makeElement("div", "admin-person-details");
+      identity.append(
+        makeElement("strong", "", query.Name || "Learner"),
+        makeElement("a", "", query.Email || "No email provided")
+      );
+      identity.querySelector("a").href = `mailto:${query.Email || ""}`;
+      person.append(avatar, identity, date);
+
+      const replyLabel = makeElement("label", "admin-reply-label", "YOUR REPLY");
+      const textarea = makeElement("textarea", "admin-reply-input");
+      textarea.rows = 3;
+      textarea.maxLength = 5000;
+      textarea.placeholder = "Write a clear, helpful answer. Never ask for OTPs or sensitive ID numbers.";
+      textarea.value = query.Reply || "";
+      textarea.setAttribute("aria-label", `Reply to question from ${query.Name || "learner"}`);
+      replyLabel.append(textarea);
+
+      const footer = makeElement("div", "admin-reply-footer");
+      const note = makeElement("span", "admin-reply-hint", "Be kind, clear, and protect personal information.");
+      const saveButton = makeElement("button", "admin-save-reply", query.Reply ? "Update reply" : "Send reply");
+      saveButton.type = "button";
+      saveButton.addEventListener("click", () => saveReply(query, textarea, saveButton));
+      footer.append(note, saveButton);
+
+      card.append(heading, question, person, replyLabel, footer);
+      return card;
+    }
+
+    function renderQueries() {
+      const term = searchInput.value.trim().toLowerCase();
+      const filtered = queries.filter(query => {
+        const resolved = query.Status?.toLowerCase() === "resolved";
+        const matchesFilter = activeFilter === "all" ||
+          (activeFilter === "pending" && !resolved) ||
+          (activeFilter === "resolved" && resolved);
+        const haystack = [query.Name, query.Email, query.Category, query.Question, query.Reply]
+          .filter(Boolean).join(" ").toLowerCase();
+        return matchesFilter && haystack.includes(term);
+      });
+
+      queryList.replaceChildren(...filtered.map(makeQueryCard));
+      document.getElementById("visibleCount").textContent = filtered.length;
+      emptyState.hidden = filtered.length > 0 || !statusElement.hidden;
+      if (!filtered.length && statusElement.hidden) {
+        const searching = Boolean(term) || activeFilter !== "all";
+        document.getElementById("emptyTitle").textContent = searching ? "No matching questions" : "Inbox is all caught up";
+        document.getElementById("emptyMessage").textContent = searching
+          ? "Try another search or choose a different filter."
+          : "When learners submit a question, it will show up here.";
+      }
+    }
+
+    async function loadQueries() {
+      showMessage("Loading questions...");
+      queryList.replaceChildren();
+      emptyState.hidden = true;
+      try {
+        const response = await fetch(`${API}/admin/queries`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            localStorage.removeItem("everlocker_token");
+            localStorage.removeItem("everlocker_user");
+            token = null;
+            showAuth(response.status === 403
+              ? "This account does not have admin access. Sign in with an admin account."
+              : "Your session has expired. Please sign in again.");
+            return;
+          }
+          throw new Error(data.message || "Could not load questions.");
+        }
+        if (!Array.isArray(data)) throw new Error("The server returned an invalid inbox response.");
+        queries = data;
+        updateSummary();
+        showDashboard();
+        showMessage("");
+        renderQueries();
+      } catch (error) {
+        const message = `${error.message} Check that the backend is running and MongoDB Atlas is configured.`;
+        if (authGate.hidden) {
+          showMessage(message, true);
+        } else {
+          authMessage.textContent = message;
+        }
+      }
+    }
+
+    document.getElementById("authForm").addEventListener("submit", async event => {
+      event.preventDefault();
+      const isSignup = authMode === "signup";
+      const submitButton = document.getElementById("authSubmit");
+      submitButton.disabled = true;
+      submitButton.textContent = isSignup ? "Creating account..." : "Signing in...";
+      authMessage.textContent = "";
+      try {
+        const payload = {
+          email: document.getElementById("authEmail").value.trim(),
+          password: document.getElementById("authPassword").value
+        };
+        if (isSignup) payload.name = document.getElementById("signupName").value.trim();
+        const response = await fetch(`${API}/auth/${isSignup ? "register" : "login"}`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || (isSignup ? "Could not create account." : "Login failed."));
+
+        if (isSignup) {
+          document.getElementById("authForm").reset();
+          setAuthMode("login");
+          authMessage.textContent = "Account created. Sign in with an admin account to open this page; new accounts are learners by default.";
+          return;
+        }
+
+        if (data.user?.role !== "admin") {
+          localStorage.removeItem("everlocker_token");
+          localStorage.removeItem("everlocker_user");
+          token = null;
+          authMessage.textContent = "This account does not have admin access. Sign in with an admin account.";
+          return;
+        }
+
+        token = data.token;
+        localStorage.setItem("everlocker_token", data.token);
+        localStorage.setItem("everlocker_user", JSON.stringify(data.user));
+        await loadQueries();
+      } catch (error) {
+        authMessage.textContent = error.message;
+      } finally {
+        submitButton.disabled = false;
+        submitButton.textContent = authMode === "signup" ? "Create account" : "Log in";
+      }
+    });
+
+    async function saveReply(query, textarea, button) {
+      const reply = textarea.value.trim();
+      if (!reply) {
+        textarea.focus();
+        showMessage("Write a reply before saving.", true);
+        return;
+      }
+
+      button.disabled = true;
+      button.textContent = "Saving...";
+      try {
+        const response = await fetch(`${API}/admin/queries/${encodeURIComponent(query.QueryID)}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({ reply })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Could not save reply.");
+        query.Reply = reply;
+        query.Status = "Resolved";
+        query.RepliedAt = new Date().toISOString();
+        updateSummary();
+        renderQueries();
+        showMessage("Reply saved. The question is marked as replied.");
+        window.setTimeout(() => {
+          if (!statusElement.classList.contains("admin-notice-error")) showMessage("");
+        }, 3500);
+      } catch (error) {
+        showMessage(`${error.message} Your reply has not been saved.`, true);
+        button.disabled = false;
+        button.textContent = query.Reply ? "Update reply" : "Send reply";
+      }
+    }
+
+    logoutButton.addEventListener("click", () => {
+      localStorage.removeItem("everlocker_token");
+      localStorage.removeItem("everlocker_user");
+      token = null;
+      setAuthMode("login");
+      showAuth("You have been logged out.");
+    });
+    document.getElementById("refresh").addEventListener("click", loadQueries);
+    searchInput.addEventListener("input", renderQueries);
+    document.querySelectorAll(".admin-filter").forEach(button => {
+      button.addEventListener("click", () => {
+        activeFilter = button.dataset.filter;
+        document.querySelectorAll(".admin-filter").forEach(filter => {
+          const selected = filter === button;
+          filter.classList.toggle("active", selected);
+          filter.setAttribute("aria-pressed", String(selected));
+        });
+        renderQueries();
+      });
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "/" && !["INPUT", "TEXTAREA"].includes(document.activeElement.tagName)) {
+        event.preventDefault();
+        searchInput.focus();
+      }
+    });
+
+    const currentUser = JSON.parse(localStorage.getItem("everlocker_user") || "{}");
+    setAuthMode("login");
+    if (token && currentUser.role === "admin") {
+      loadQueries();
+    } else {
+      showAuth();
+    }
+  </script>
+</body>
+</html>
