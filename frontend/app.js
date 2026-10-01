@@ -1,4 +1,4 @@
-const API_BASE = localStorage.getItem("everlocker_api") || "http://localhost:5000/api";
+const API_BASE = localStorage.getItem("everlocker_api") || "https://cep-16gz.onrender.com/api";
 
 const quiz = [
   {q:"What is DigiLocker mainly used for?", o:["Digital document access and sharing","Online gaming","Food delivery","Music streaming"], a:0},

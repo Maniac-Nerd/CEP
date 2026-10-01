@@ -116,7 +116,7 @@
   </main>
 
   <script>
-    const API = (localStorage.getItem("everlocker_api") || "http://localhost:5000/api").replace(/\/$/, "");
+    const API = (localStorage.getItem("everlocker_api") || "https://cep-16gz.onrender.com/api").replace(/\/$/, "");
     let token = localStorage.getItem("everlocker_token");
     let authMode = "login";
     const authGate = document.getElementById("authGate");
