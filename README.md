@@ -38,6 +38,8 @@ Copy `backend/.env.example` to `backend/.env`. Set `MONGODB_URI` to the connecti
 
 The backend creates its collections and a unique email index automatically. Keep `backend/.env` private and never put the Atlas URI in frontend files.
 
+To email learners when an admin replies, configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, and `MAIL_FROM` in `backend/.env` using credentials from your email provider. Use an app password or provider-issued SMTP credential where required. If SMTP is not configured or delivery fails, the reply is still saved and the admin dashboard reports the email status.
+
 ## Step 2 — Install backend packages
 Open VS Code terminal inside the backend folder:
 npm install
@@ -85,26 +87,16 @@ If you change the backend port, edit API_BASE at the top of frontend/app.js.
 
 The backend stores demo upload contents in MongoDB as well as their metadata. Existing records in the old SQL Server database are not migrated automatically.
 
-## Deployment
+## Deployment & Live Links
 
-### Easiest: Netlify for the frontend
-If by "Clipfy" you meant Netlify:
-1. Create a Netlify account.
-2. Drag/drop the frontend folder into Netlify's deploy area, OR connect a GitHub repository.
-3. Your static website gets an HTTPS address.
-4. IMPORTANT: Netlify only hosts the frontend. The Node.js API needs separate hosting.
+- **Live Website (GitHub Pages):** [https://maniac-nerd.github.io/CEP/](https://maniac-nerd.github.io/CEP/)
+- **Admin Support Desk:** [https://maniac-nerd.github.io/CEP/admin.html](https://maniac-nerd.github.io/CEP/admin.html)
+- **Backend API (Render):** [https://cep-16gz.onrender.com/api](https://cep-16gz.onrender.com/api)
+- **Backend Health Check:** [https://cep-16gz.onrender.com/api/health](https://cep-16gz.onrender.com/api/health)
+- **Database:** MongoDB Atlas (Cloud)
+- **Email Service:** EmailJS (`service_omtbyhk` / `template_zun3nmp`)
 
-### Full online version
-For a real database-backed online project:
-Frontend: Netlify
-Backend API: Azure App Service / another Node.js host
-Database: MongoDB Atlas
-
-Then change:
-localStorage.setItem("everlocker_api","https://YOUR-BACKEND-URL/api")
-or change API_BASE in app.js.
-
-Set `MONGODB_URI`, `MONGODB_DB`, and a strong `JWT_SECRET` in the backend host's environment settings. Do not put database credentials in frontend files.
+The frontend automatically connects to the deployed Render backend by default. Developers testing locally can override the endpoint anytime using `localStorage.setItem("everlocker_api", "http://localhost:5000/api")` or via the **Email Settings** modal in the Admin Dashboard.
 
 ## Suggested 4-member division
 Member 1: HTML pages + navigation

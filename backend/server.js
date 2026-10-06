@@ -167,15 +167,27 @@ app.put("/api/admin/queries/:id", auth, admin, async (req, res) => {
     if (!ObjectId.isValid(req.params.id)) {
       return res.status(400).json({ message: "Invalid query ID" });
     }
-    const reply = req.body.reply || "";
+    const reply = typeof req.body.reply === "string" ? req.body.reply.trim() : "";
+    if (!reply) {
+      return res.status(400).json({ message: "Reply cannot be empty" });
+    }
+    const queryId = new ObjectId(req.params.id);
+    const query = await db.collection("Queries").findOne({ _id: queryId });
+    if (!query) {
+      return res.status(404).json({ message: "Query not found" });
+    }
     const result = await db.collection("Queries").updateOne(
-      { _id: new ObjectId(req.params.id) },
+      { _id: queryId },
       { $set: { Reply: reply, Status: "Resolved", RepliedAt: new Date() } }
     );
     if (!result.matchedCount) {
       return res.status(404).json({ message: "Query not found" });
     }
-    res.json({ message: "Reply saved" });
+    res.json({
+      message: "Reply saved",
+      learnerName: query.Name,
+      learnerEmail: query.Email
+    });
   } catch (error) {
     console.error("Saving reply failed:", error);
     res.status(500).json({ message: "Database error" });

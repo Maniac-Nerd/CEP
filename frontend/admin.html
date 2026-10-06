@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 </head>
 <body class="admin-page">
   <header class="admin-topbar">
@@ -19,6 +20,7 @@
     <div class="admin-top-actions">
       <span class="admin-secure-label"><span></span> Author workspace</span>
       <a class="admin-home-link" href="index.html">View website <span aria-hidden="true">↗</span></a>
+      <button class="admin-logout" id="emailSettingsBtn" type="button" hidden>⚙ Email Settings</button>
       <button class="admin-logout" id="logout" type="button" hidden>Log out</button>
     </div>
   </header>
@@ -115,13 +117,272 @@
     </div>
   </main>
 
+  <!-- Email & System Settings Modal -->
+  <style>
+    .admin-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 27, 44, 0.55);
+      backdrop-filter: blur(4px);
+      display: grid;
+      place-items: center;
+      padding: 20px;
+      z-index: 100;
+    }
+    .admin-modal-backdrop[hidden] {
+      display: none !important;
+    }
+    .admin-modal-card {
+      background: #ffffff;
+      border: 1px solid #dce8f5;
+      border-radius: 20px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(18, 38, 64, 0.2);
+      padding: 26px 28px;
+      box-sizing: border-box;
+    }
+    .admin-modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-bottom: 1px solid #edf2f9;
+      padding-bottom: 14px;
+    }
+    .admin-modal-header h2 {
+      margin: 4px 0 0;
+      font: 800 22px Manrope, sans-serif;
+      color: #202d43;
+    }
+    .admin-modal-close {
+      background: transparent;
+      border: none;
+      font-size: 26px;
+      line-height: 22px;
+      color: #8b98ad;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    .admin-modal-close:hover {
+      background: #f0f4fb;
+      color: #202d43;
+    }
+    .admin-settings-intro {
+      font-size: 13px;
+      color: #6c7c93;
+      line-height: 1.5;
+      margin: 0 0 16px;
+    }
+    .admin-settings-field {
+      display: block;
+      margin-bottom: 13px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #4a5b73;
+    }
+    .admin-settings-field input {
+      display: block;
+      width: 100%;
+      height: 40px;
+      margin-top: 6px;
+      padding: 0 12px;
+      border: 1px solid #d8e2ee;
+      border-radius: 9px;
+      background: #fbfdff;
+      font: inherit;
+      color: #202d43;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .admin-settings-field input:focus {
+      border-color: #536ee8;
+      box-shadow: 0 0 0 3px rgba(83, 110, 232, 0.12);
+    }
+    .admin-settings-field small {
+      display: block;
+      margin-top: 4px;
+      font-size: 11px;
+      font-weight: 400;
+      color: #8897ad;
+    }
+    .admin-template-guide {
+      background: #f5f8ff;
+      border: 1px solid #dce6f9;
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 16px 0;
+      font-size: 11.5px;
+      color: #556680;
+    }
+    .admin-template-guide strong {
+      color: #2b3b52;
+      display: block;
+      margin-bottom: 5px;
+    }
+    .admin-template-guide ul {
+      margin: 6px 0 0;
+      padding-left: 18px;
+    }
+    .admin-template-guide li {
+      margin: 3px 0;
+    }
+    .admin-template-guide code {
+      background: #e7edff;
+      color: #3b54d6;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+    .admin-settings-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .admin-settings-save {
+      flex: 1;
+      height: 42px;
+      border: none;
+      border-radius: 10px;
+      background: #526fe8;
+      color: #ffffff;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(82, 111, 232, 0.25);
+    }
+    .admin-settings-save:hover {
+      background: #415ecf;
+    }
+    .admin-settings-test {
+      height: 42px;
+      padding: 0 16px;
+      border: 1px solid #d4dfef;
+      border-radius: 10px;
+      background: #ffffff;
+      color: #4a5f7e;
+      font-weight: 700;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .admin-settings-test:hover {
+      background: #f7f9fd;
+      border-color: #becfe7;
+    }
+    .admin-settings-status {
+      min-height: 18px;
+      margin: 12px 0 0;
+      font-size: 12px;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .admin-settings-status.success {
+      color: #2a8e5c;
+    }
+    .admin-settings-status.error {
+      color: #c93b3b;
+    }
+  </style>
+
+  <div class="admin-modal-backdrop" id="emailSettingsModal" hidden>
+    <div class="admin-modal-card" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+      <div class="admin-modal-header">
+        <div>
+          <span class="admin-eyebrow"><span class="admin-eyebrow-mark">✉</span> EMAIL NOTIFICATIONS</span>
+          <h2 id="settingsModalTitle">EmailJS & Mail Settings</h2>
+        </div>
+        <button class="admin-modal-close" id="closeSettingsBtn" type="button" aria-label="Close settings">×</button>
+      </div>
+
+      <div class="admin-modal-body">
+        <p class="admin-settings-intro">
+          EverLocker uses <strong>EmailJS</strong> to send automated email notifications directly to learners when you reply to their queries.
+        </p>
+
+        <form id="emailSettingsForm">
+          <label class="admin-settings-field">
+            <span>EmailJS Service ID</span>
+            <input id="settingServiceId" type="text" placeholder="e.g. service_omtbyhk" required>
+            <small>EmailJS Dashboard → Email Services (Default: <code>service_omtbyhk</code>)</small>
+          </label>
+
+          <label class="admin-settings-field">
+            <span>EmailJS Template ID</span>
+            <input id="settingTemplateId" type="text" placeholder="e.g. template_xxxxxxx">
+            <small>EmailJS Dashboard → Email Templates</small>
+          </label>
+
+          <label class="admin-settings-field">
+            <span>EmailJS Public Key</span>
+            <input id="settingPublicKey" type="text" placeholder="e.g. xxxxxxxxxxxxxxxx">
+            <small>EmailJS Dashboard → Account → API Keys → Public Key</small>
+          </label>
+
+          <label class="admin-settings-field">
+            <span>Backend API Endpoint</span>
+            <input id="settingApiUrl" type="url" placeholder="https://cep-16gz.onrender.com/api">
+            <small>Default: Deployed on Render (https://cep-16gz.onrender.com/api)</small>
+          </label>
+
+          <div class="admin-template-guide">
+            <strong>Template Variables Guide</strong>
+            <p>Ensure your EmailJS email template uses these variables:</p>
+            <ul>
+              <li><code>{{to_name}}</code> — Learner name</li>
+              <li><code>{{to_email}}</code> — Learner email address</li>
+              <li><code>{{reply_message}}</code> — Admin reply content</li>
+              <li><code>{{from_name}}</code> — EverLocker Support</li>
+            </ul>
+          </div>
+
+          <div class="admin-settings-actions">
+            <button class="admin-settings-save" id="saveSettingsBtn" type="submit">Save Settings</button>
+            <button class="admin-settings-test" id="testEmailBtn" type="button">Send Test Email</button>
+          </div>
+          <p class="admin-settings-status" id="settingsStatus" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
-    const API = (localStorage.getItem("everlocker_api") || "https://cep-16gz.onrender.com/api").replace(/\/$/, "");
+    const DEFAULT_API_URL = "https://cep-16gz.onrender.com/api";
+    let API = (localStorage.getItem("everlocker_api") || DEFAULT_API_URL).replace(/\/$/, "");
     let token = localStorage.getItem("everlocker_token");
     let authMode = "login";
+
+    // ── EmailJS Configuration ─────────────────────────────────────
+    const DEFAULT_EMAILJS_SERVICE_ID = "service_omtbyhk";
+    const DEFAULT_EMAILJS_TEMPLATE_ID = "template_zun3nmp";
+    const DEFAULT_EMAILJS_PUBLIC_KEY = "BXkiYdZeeK_EGLslS";
+
+    function getEmailConfig() {
+      return {
+        serviceId: localStorage.getItem("everlocker_emailjs_service") || DEFAULT_EMAILJS_SERVICE_ID,
+        templateId: localStorage.getItem("everlocker_emailjs_template") || DEFAULT_EMAILJS_TEMPLATE_ID,
+        publicKey: localStorage.getItem("everlocker_emailjs_public") || DEFAULT_EMAILJS_PUBLIC_KEY
+      };
+    }
+
+    function initEmailJS() {
+      const config = getEmailConfig();
+      if (typeof emailjs !== "undefined" && config.publicKey && config.publicKey !== "YOUR_PUBLIC_KEY") {
+        try {
+          emailjs.init(config.publicKey);
+        } catch (e) {
+          console.warn("EmailJS init warning:", e);
+        }
+      }
+    }
+    initEmailJS();
+
     const authGate = document.getElementById("authGate");
     const adminDashboard = document.getElementById("adminDashboard");
     const logoutButton = document.getElementById("logout");
+    const emailSettingsBtn = document.getElementById("emailSettingsBtn");
     const authMessage = document.getElementById("authMessage");
     const statusElement = document.getElementById("status");
     const queryList = document.getElementById("queries");
@@ -134,7 +395,15 @@
       authGate.hidden = false;
       adminDashboard.hidden = true;
       logoutButton.hidden = true;
+      if (emailSettingsBtn) emailSettingsBtn.hidden = true;
       authMessage.textContent = message;
+    }
+
+    function showDashboard() {
+      authGate.hidden = true;
+      adminDashboard.hidden = false;
+      logoutButton.hidden = false;
+      if (emailSettingsBtn) emailSettingsBtn.hidden = false;
     }
 
     function setAuthMode(mode) {
@@ -157,12 +426,6 @@
           authMessage.textContent = "";
         });
       authMessage.textContent = "";
-    }
-
-    function showDashboard() {
-      authGate.hidden = true;
-      adminDashboard.hidden = false;
-      logoutButton.hidden = false;
     }
 
     function showMessage(message, isError = false) {
@@ -353,6 +616,163 @@
       }
     });
 
+    // ── Email Settings Modal Logic ────────────────────────────────
+    const emailSettingsModal = document.getElementById("emailSettingsModal");
+    const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+    const emailSettingsForm = document.getElementById("emailSettingsForm");
+    const settingServiceId = document.getElementById("settingServiceId");
+    const settingTemplateId = document.getElementById("settingTemplateId");
+    const settingPublicKey = document.getElementById("settingPublicKey");
+    const settingApiUrl = document.getElementById("settingApiUrl");
+    const testEmailBtn = document.getElementById("testEmailBtn");
+    const settingsStatus = document.getElementById("settingsStatus");
+
+    function openSettingsModal() {
+      const config = getEmailConfig();
+      settingServiceId.value = config.serviceId;
+      settingTemplateId.value = config.templateId;
+      settingPublicKey.value = config.publicKey;
+      settingApiUrl.value = localStorage.getItem("everlocker_api") || DEFAULT_API_URL;
+      settingsStatus.textContent = "";
+      settingsStatus.className = "admin-settings-status";
+      emailSettingsModal.hidden = false;
+    }
+
+    function closeSettingsModal() {
+      emailSettingsModal.hidden = true;
+    }
+
+    if (emailSettingsBtn) {
+      emailSettingsBtn.addEventListener("click", openSettingsModal);
+    }
+    if (closeSettingsBtn) {
+      closeSettingsBtn.addEventListener("click", closeSettingsModal);
+    }
+    if (emailSettingsModal) {
+      emailSettingsModal.addEventListener("click", event => {
+        if (event.target === emailSettingsModal) closeSettingsModal();
+      });
+    }
+
+    if (emailSettingsForm) {
+      emailSettingsForm.addEventListener("submit", event => {
+        event.preventDefault();
+        const service = settingServiceId.value.trim() || DEFAULT_EMAILJS_SERVICE_ID;
+        const template = settingTemplateId.value.trim();
+        const pubKey = settingPublicKey.value.trim();
+        const apiUrl = settingApiUrl.value.trim();
+
+        localStorage.setItem("everlocker_emailjs_service", service);
+        if (template) {
+          localStorage.setItem("everlocker_emailjs_template", template);
+        } else {
+          localStorage.removeItem("everlocker_emailjs_template");
+        }
+
+        if (pubKey) {
+          localStorage.setItem("everlocker_emailjs_public", pubKey);
+        } else {
+          localStorage.removeItem("everlocker_emailjs_public");
+        }
+
+        if (apiUrl) {
+          localStorage.setItem("everlocker_api", apiUrl);
+          API = apiUrl.replace(/\/$/, "");
+        }
+
+        initEmailJS();
+        settingsStatus.textContent = "Settings saved successfully!";
+        settingsStatus.className = "admin-settings-status success";
+        window.setTimeout(() => {
+          if (!emailSettingsModal.hidden) closeSettingsModal();
+        }, 1200);
+      });
+    }
+
+    if (testEmailBtn) {
+      testEmailBtn.addEventListener("click", async () => {
+        const service = settingServiceId.value.trim();
+        const template = settingTemplateId.value.trim();
+        const pubKey = settingPublicKey.value.trim();
+
+        if (!service || !template || !pubKey) {
+          settingsStatus.textContent = "Please fill in Service ID, Template ID, and Public Key to send a test.";
+          settingsStatus.className = "admin-settings-status error";
+          return;
+        }
+
+        testEmailBtn.disabled = true;
+        testEmailBtn.textContent = "Sending...";
+        settingsStatus.textContent = "Sending test email via EmailJS...";
+        settingsStatus.className = "admin-settings-status";
+
+        try {
+          if (typeof emailjs === "undefined") throw new Error("EmailJS library not loaded");
+          emailjs.init(pubKey);
+          const currentUser = JSON.parse(localStorage.getItem("everlocker_user") || "{}");
+          const targetEmail = currentUser.email || "learner@example.com";
+          const testParams = {
+            to_name: currentUser.name || "Support Admin",
+            name: currentUser.name || "Support Admin",
+            to_email: targetEmail,
+            email: targetEmail,
+            user_email: targetEmail,
+            reply_to: targetEmail,
+            message: "This is a test notification from the EverLocker Support Desk verifying your EmailJS setup.",
+            reply_message: "This is a test notification from the EverLocker Support Desk verifying your EmailJS setup.",
+            content: "This is a test notification from the EverLocker Support Desk verifying your EmailJS setup.",
+            from_name: "EverLocker Support"
+          };
+          await emailjs.send(service, template, testParams, pubKey);
+
+          settingsStatus.textContent = `Test email sent successfully to ${targetEmail}!`;
+          settingsStatus.className = "admin-settings-status success";
+        } catch (err) {
+          console.error("Test email failed:", err);
+          const errMsg = (err && (err.text || err.message)) ? String(err.text || err.message) : "Failed to deliver";
+          settingsStatus.textContent = `EmailJS error: ${errMsg}`;
+          settingsStatus.className = "admin-settings-status error";
+        } finally {
+          testEmailBtn.disabled = false;
+          testEmailBtn.textContent = "Send Test Email";
+        }
+      });
+    }
+
+    async function sendEmailViaEmailJS(learnerName, learnerEmail, replyText) {
+      const config = getEmailConfig();
+      if (!config.serviceId || !config.templateId || !config.publicKey ||
+          config.templateId === "YOUR_TEMPLATE_ID" || config.publicKey === "YOUR_PUBLIC_KEY") {
+        return { state: "not_configured" };
+      }
+      try {
+        if (typeof emailjs === "undefined") {
+          return { state: "failed", reason: "EmailJS SDK not loaded" };
+        }
+        emailjs.init(config.publicKey);
+        const templateParams = {
+          to_name: learnerName || "there",
+          name: learnerName || "there",
+          user_name: learnerName || "there",
+          to_email: learnerEmail,
+          email: learnerEmail,
+          user_email: learnerEmail,
+          reply_to: learnerEmail,
+          message: replyText,
+          reply_message: replyText,
+          content: replyText,
+          reply: replyText,
+          from_name: "EverLocker Support"
+        };
+        await emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey);
+        return { state: "sent" };
+      } catch (error) {
+        console.error("EmailJS send failed:", error);
+        const reason = (error && (error.text || error.message)) ? String(error.text || error.message) : "Delivery failed";
+        return { state: "failed", reason };
+      }
+    }
+
     async function saveReply(query, textarea, button) {
       const reply = textarea.value.trim();
       if (!reply) {
@@ -379,10 +799,26 @@
         query.RepliedAt = new Date().toISOString();
         updateSummary();
         renderQueries();
-        showMessage("Reply saved. The question is marked as replied.");
+
+        // Send email notification via EmailJS
+        const emailStatus = await sendEmailViaEmailJS(
+          data.learnerName || query.Name,
+          data.learnerEmail || query.Email,
+          reply
+        );
+
+        let message = "Reply saved and marked as Resolved.";
+        if (emailStatus.state === "sent") {
+          message += ` Notification email sent to ${query.Email}.`;
+        } else if (emailStatus.state === "not_configured") {
+          message += " (Email notification skipped: EmailJS Template ID / Public Key not set. Click '⚙ Email Settings' above to configure).";
+        } else {
+          message += ` (Email notification could not be delivered: ${emailStatus.reason}).`;
+        }
+        showMessage(message, false);
         window.setTimeout(() => {
           if (!statusElement.classList.contains("admin-notice-error")) showMessage("");
-        }, 3500);
+        }, 5000);
       } catch (error) {
         showMessage(`${error.message} Your reply has not been saved.`, true);
         button.disabled = false;
