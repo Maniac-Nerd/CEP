@@ -38,7 +38,7 @@
           </label>
           <label>
             Email address
-            <input id="authEmail" type="email" autocomplete="email" required placeholder="you@example.com">
+            <input id="authEmail" type="email" autocomplete="email" required placeholder="admin@everlocker.local">
           </label>
           <label>
             Password
@@ -350,10 +350,7 @@
 
   <script>
     const DEFAULT_API_URL = "https://cep-16gz.onrender.com/api";
-    // Clear legacy localhost overrides to ensure connection to Render cloud
-    if (localStorage.getItem("everlocker_api") && localStorage.getItem("everlocker_api").includes("localhost")) {
-      localStorage.removeItem("everlocker_api");
-    }
+    // Clear any outdated localhost entries from previous local testing
     if (localStorage.getItem("everlocker_api") && localStorage.getItem("everlocker_api").includes("localhost")) {
       localStorage.removeItem("everlocker_api");
     }
@@ -379,14 +376,8 @@
       if (typeof emailjs !== "undefined" && config.publicKey && config.publicKey !== "YOUR_PUBLIC_KEY") {
         try {
           emailjs.init(config.publicKey);
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         } catch (e) {
           console.warn("EmailJS init warning:", e);
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
       }
     }
@@ -437,9 +428,6 @@
         .addEventListener("click", () => {
           setAuthMode(isSignup ? "login" : "signup");
           authMessage.textContent = "";
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         });
       authMessage.textContent = "";
     }
@@ -554,9 +542,6 @@
       try {
         const response = await fetch(`${API}/admin/queries`, {
           headers: { Authorization: `Bearer ${token}` }
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         });
         const data = await response.json();
         if (!response.ok) {
@@ -568,14 +553,8 @@
               ? "This account does not have admin access. Sign in with an admin account."
               : "Your session has expired. Please sign in again.");
             return;
-          } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        }
+          }
           throw new Error(data.message || "Could not load questions.");
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
         if (!Array.isArray(data)) throw new Error("The server returned an invalid inbox response.");
         queries = data;
@@ -584,17 +563,11 @@
         showMessage("");
         renderQueries();
       } catch (error) {
-        const message = `${error.message} (Connected to Render API at ${API}. If server is waking up from sleep, please wait 30 seconds and refresh).`;
+        const message = `${error.message} Check that the backend is running and MongoDB Atlas is configured.`;
         if (authGate.hidden) {
           showMessage(message, true);
         } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        } else {
           authMessage.textContent = message;
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
       }
     }
@@ -610,18 +583,12 @@
         const payload = {
           email: document.getElementById("authEmail").value.trim(),
           password: document.getElementById("authPassword").value
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         };
         if (isSignup) payload.name = document.getElementById("signupName").value.trim();
         const response = await fetch(`${API}/auth/${isSignup ? "register" : "login"}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || (isSignup ? "Could not create account." : "Login failed."));
@@ -631,9 +598,6 @@
           setAuthMode("login");
           authMessage.textContent = "Account created. Sign in with an admin account to open this page; new accounts are learners by default.";
           return;
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
 
         if (data.user?.role !== "admin") {
@@ -642,9 +606,6 @@
           token = null;
           authMessage.textContent = "This account does not have admin access. Sign in with an admin account.";
           return;
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
 
         token = data.token;
@@ -652,7 +613,10 @@
         localStorage.setItem("everlocker_user", JSON.stringify(data.user));
         await loadQueries();
       } catch (error) {
-        authMessage.textContent = error.message;
+        console.error("Login error:", error);
+        authMessage.textContent = error.message && error.message.toLowerCase().includes("fetch")
+          ? `Could not reach backend API at ${API}. If Render server is waking up from sleep, please wait 30 seconds and retry.`
+          : error.message;
       } finally {
         submitButton.disabled = false;
         submitButton.textContent = authMode === "signup" ? "Create account" : "Log in";
@@ -709,33 +673,18 @@
         if (template) {
           localStorage.setItem("everlocker_emailjs_template", template);
         } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        } else {
           localStorage.removeItem("everlocker_emailjs_template");
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
 
         if (pubKey) {
           localStorage.setItem("everlocker_emailjs_public", pubKey);
         } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        } else {
           localStorage.removeItem("everlocker_emailjs_public");
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
 
-        if (apiUrl && !apiUrl.includes("localhost")) {
+        if (apiUrl) {
           localStorage.setItem("everlocker_api", apiUrl);
           API = apiUrl.replace(/\/$/, "");
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
 
         initEmailJS();
@@ -743,9 +692,6 @@
         settingsStatus.className = "admin-settings-status success";
         window.setTimeout(() => {
           if (!emailSettingsModal.hidden) closeSettingsModal();
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }, 1200);
       });
     }
@@ -760,9 +706,6 @@
           settingsStatus.textContent = "Please fill in Service ID, Template ID, and Public Key to send a test.";
           settingsStatus.className = "admin-settings-status error";
           return;
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
 
         testEmailBtn.disabled = true;
@@ -786,31 +729,19 @@
             reply_message: "This is a test notification from the EverLocker Support Desk verifying your EmailJS setup.",
             content: "This is a test notification from the EverLocker Support Desk verifying your EmailJS setup.",
             from_name: "EverLocker Support"
-          } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        };
+          };
           await emailjs.send(service, template, testParams, pubKey);
 
           settingsStatus.textContent = `Test email sent successfully to ${targetEmail}!`;
           settingsStatus.className = "admin-settings-status success";
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         } catch (err) {
           console.error("Test email failed:", err);
           const errMsg = (err && (err.text || err.message)) ? String(err.text || err.message) : "Failed to deliver";
           settingsStatus.textContent = `EmailJS error: ${errMsg}`;
           settingsStatus.className = "admin-settings-status error";
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         } finally {
           testEmailBtn.disabled = false;
           testEmailBtn.textContent = "Send Test Email";
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
       });
     }
@@ -824,9 +755,6 @@
       try {
         if (typeof emailjs === "undefined") {
           return { state: "failed", reason: "EmailJS SDK not loaded" };
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
         emailjs.init(config.publicKey);
         const templateParams = {
@@ -842,9 +770,6 @@
           content: replyText,
           reply: replyText,
           from_name: "EverLocker Support"
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         };
         await emailjs.send(config.serviceId, config.templateId, templateParams, config.publicKey);
         return { state: "sent" };
@@ -871,14 +796,8 @@
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`
-          } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        },
+          },
           body: JSON.stringify({ reply })
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         });
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Could not save reply.");
@@ -898,26 +817,14 @@
         let message = "Reply saved and marked as Resolved.";
         if (emailStatus.state === "sent") {
           message += ` Notification email sent to ${query.Email}.`;
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         } else if (emailStatus.state === "not_configured") {
           message += " (Email notification skipped: EmailJS Template ID / Public Key not set. Click '⚙ Email Settings' above to configure).";
         } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
-        } else {
           message += ` (Email notification could not be delivered: ${emailStatus.reason}).`;
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }
         showMessage(message, false);
         window.setTimeout(() => {
           if (!statusElement.classList.contains("admin-notice-error")) showMessage("");
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         }, 5000);
       } catch (error) {
         showMessage(`${error.message} Your reply has not been saved.`, true);
@@ -942,9 +849,6 @@
           const selected = filter === button;
           filter.classList.toggle("active", selected);
           filter.setAttribute("aria-pressed", String(selected));
-        } else {
-          localStorage.setItem("everlocker_api", DEFAULT_API_URL);
-          API = DEFAULT_API_URL;
         });
         renderQueries();
       });

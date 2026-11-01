@@ -36,5 +36,8 @@ jobs:
           node --check backend/create-admin.js
           node --check backend/mail.js
 
-      - name: Check frontend syntax
+      - name: Check frontend app syntax
         run: node --check frontend/app.js
+
+      - name: Check admin HTML script syntax
+        run: node -e "const fs = require('fs'); const html = fs.readFileSync('frontend/admin.html', 'utf8'); const script = html.match(/<script>([\s\S]*?)<\/script>/)[1]; new Function(script);"
