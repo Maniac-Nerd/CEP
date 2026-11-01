@@ -1,0 +1,15 @@
+{
+  "name": "everlocker-cep",
+  "version": "1.0.0",
+  "description": "EverLocker Community Engagement Project",
+  "private": true,
+  "scripts": {
+    "start": "npm start --prefix backend",
+    "build": "npm install --prefix backend",
+    "test": "node --check backend/server.js && node --check backend/create-admin.js && node --check frontend/app.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
+

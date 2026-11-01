@@ -74,7 +74,7 @@ function documentResponse(document) {
   };
 }
 
-app.get("/api/health", (req, res) => res.json({ ok: true, project: "EverLocker" }));
+app.get("/api/health", (req, res) => res.json({ ok: true, project: "EverLocker", service: "Render Cloud API", endpoint: "https://cep-16gz.onrender.com/api" }));
 
 app.post("/api/auth/register", async (req, res) => {
   try {
@@ -257,8 +257,11 @@ async function start() {
   await client.connect();
   db = client.db(databaseName);
   await db.collection("Users").createIndex({ Email: 1 }, { unique: true });
-  app.listen(process.env.PORT || 5000, () => {
-    console.log(`EverLocker API running on http://localhost:${process.env.PORT || 5000}`);
+  const port = process.env.PORT || 5000;
+  app.listen(port, () => {
+    console.log(`EverLocker API listening on port ${port}`);
+    console.log("Render API Endpoint: https://cep-16gz.onrender.com/api");
+    console.log("Live Health Check: https://cep-16gz.onrender.com/api/health");
   });
 }
 

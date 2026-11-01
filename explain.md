@@ -366,7 +366,8 @@ const r = await fetch(API_BASE + `/auth/${signingUp ? "register" : "login"}`, {
 ### Feature 4: API Base URL Configuration
 
 ```javascript
-const API_BASE = localStorage.getItem("everlocker_api") || "https://cep-16gz.onrender.com/api";
+const RENDER_API_URL = "https://cep-16gz.onrender.com/api";
+const API_BASE = (localStorage.getItem("everlocker_api") || RENDER_API_URL).replace(/\/$/, "");
 ```
 - By default, the frontend talks to our deployed backend on Render.
 - Developers can override this by setting `localStorage.setItem("everlocker_api", "http://localhost:5000/api")` in the browser console.
@@ -540,11 +541,11 @@ A: CORS (Cross-Origin Resource Sharing) is a browser security feature that block
 
 ## How to Demo the Project
 
-1. **Start backend:** `cd backend && npm start` → shows "EverLocker API running on http://localhost:5000"
+1. **Live Backend:** Pre-deployed on Render at `https://cep-16gz.onrender.com/api` (or run local: `cd backend && npm start`)
 2. **Open frontend:** Right-click `frontend/index.html` → Open with Live Server
 3. **Show the main website:** Scroll through all sections, play the quiz
 4. **Submit a help query:** Fill the help form, submit, show success message
 5. **Login as admin:** Use the admin credentials created with `create-admin.js`
 6. **Show admin dashboard:** View stats, search/filter queries, reply to a query
 7. **Check MongoDB Atlas:** Show the Queries collection with the saved data
-8. **Show health check:** Open `http://localhost:5000/api/health` in a browser
+8. **Show health check:** Open `https://cep-16gz.onrender.com/api/health` in a browser

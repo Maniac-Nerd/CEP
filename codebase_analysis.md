@@ -41,7 +41,7 @@ graph LR
 | Layer | Tech | Hosting Model |
 |-------|------|---------------|
 | Frontend | Vanilla HTML + CSS + JS | Static host (Live Server / Netlify) |
-| Backend | Node.js + Express | localhost:5000 / Render.com |
+| Backend | Node.js + Express | Render Cloud (https://cep-16gz.onrender.com/api) |
 | Database | MongoDB Atlas | Cloud (Atlas) |
 | Email | Nodemailer (SMTP) | Configurable |
 

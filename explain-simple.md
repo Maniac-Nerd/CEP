@@ -141,7 +141,7 @@ I wrote the **JavaScript** that makes the website interactive. Without JS, the w
 - **JWT (JSON Web Token)** = A login token the server creates. It contains your user ID and role. We send it with every protected request so the server knows who we are.
 - **`async/await`** = A way to write code that waits for a server response before continuing (e.g., wait for login response, then save the token)
 - **`e.preventDefault()`** = Stops the form from reloading the page when submitted, so we can handle it with JavaScript instead
-- **API_BASE** = The URL of our backend server. Default is our Render deployment, but can be changed to localhost for testing.
+- **API_BASE** = The URL of our backend server. Configured to connect directly to our deployed Render cloud API (`https://cep-16gz.onrender.com/api`).
 
 ---
 

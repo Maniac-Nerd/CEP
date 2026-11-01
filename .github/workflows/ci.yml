@@ -14,6 +14,7 @@ permissions:
 
 jobs:
   validate:
+    name: Codebase Syntax & Dependency Check
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
@@ -33,6 +34,7 @@ jobs:
         run: |
           node --check backend/server.js
           node --check backend/create-admin.js
+          node --check backend/mail.js
 
       - name: Check frontend syntax
         run: node --check frontend/app.js

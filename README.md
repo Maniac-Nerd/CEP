@@ -48,7 +48,8 @@ npm install
 npm start
 
 You should see:
-EverLocker API running on http://localhost:5000
+EverLocker API listening on port 5000
+Render API Endpoint: https://cep-16gz.onrender.com/api
 
 Open:
 http://localhost:5000/api/health
@@ -74,7 +75,7 @@ The easiest method is VS Code + Live Server extension:
 
 The page opens in your browser.
 
-If you change the backend port, edit API_BASE at the top of frontend/app.js.
+The frontend is pre-configured to connect directly to the live Render backend (https://cep-16gz.onrender.com/api).
 
 ## Step 6 — Test the full flow
 1. Open website.

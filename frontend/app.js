@@ -1,4 +1,11 @@
-const API_BASE = (localStorage.getItem("everlocker_api") || "https://cep-16gz.onrender.com/api").replace(/\/$/, "");
+const RENDER_API_URL = "https://cep-16gz.onrender.com/api";
+
+// Clear any outdated localhost entries from previous local testing
+if (localStorage.getItem("everlocker_api") && localStorage.getItem("everlocker_api").includes("localhost")) {
+  localStorage.removeItem("everlocker_api");
+}
+
+const API_BASE = (localStorage.getItem("everlocker_api") || RENDER_API_URL).replace(/\/$/, "");
 
 const quiz = [
   {q:"What is DigiLocker mainly used for?", o:["Digital document access and sharing","Online gaming","Food delivery","Music streaming"], a:0},
@@ -84,7 +91,7 @@ $("loginForm").onsubmit=async e=>{
   const signingUp=authMode==="signup";
   const submit=$("authSubmit");
   submit.disabled=true;
-  submit.textContent=signingUp?"Creating account...":"Logging in...";
+  submit.textContent=signingUp?"Creating account...":"Logging in (connecting to cloud)...";
   msg.textContent="";
   try{
     const payload={email:$("loginEmail").value.trim(),password:$("loginPassword").value};
@@ -104,7 +111,7 @@ $("loginForm").onsubmit=async e=>{
     msg.textContent=`Welcome, ${data.user.name}!`;
     if(data.user.role==="admin") setTimeout(()=>location.href="admin.html",400);
     else setTimeout(()=>$("loginModal").classList.add("hidden"),900);
-  }catch(err){msg.textContent=err.message+" (Is the backend running?)";}
+  }catch(err){msg.textContent=err.message+" (Note: If the Render server is waking up from cold sleep, please wait 30 seconds and retry).";}
   finally{
     submit.disabled=false;
     submit.textContent=authMode==="signup"?"Create account":"Login";
@@ -113,14 +120,14 @@ $("loginForm").onsubmit=async e=>{
 
 $("queryForm").onsubmit=async e=>{
   e.preventDefault();
-  const msg=$("queryMessage"); msg.textContent="Sending...";
+  const msg=$("queryMessage"); msg.textContent="Submitting query to Render cloud server...";
   try{
     const r=await fetch(API_BASE+"/queries",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
       name:$("queryName").value,email:$("queryEmail").value,category:$("queryCategory").value,question:$("queryText").value
     })});
     const data=await r.json();
     if(!r.ok) throw new Error(data.message||"Could not send query");
-    msg.textContent="Query submitted successfully. The author can now see it in the database.";
+    msg.textContent="Query submitted successfully to Render cloud database. The author can now see it in the support desk.";
     $("queryForm").reset();
-  }catch(err){msg.textContent=err.message+" The backend and MongoDB Atlas must be running to save queries.";}
+  }catch(err){msg.textContent=err.message+" (Could not reach Render API. If the server was asleep, please wait 30 seconds and retry).";}
 };
